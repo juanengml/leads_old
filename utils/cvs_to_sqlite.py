@@ -5,21 +5,9 @@ import glob
 import os
 
 
-def csv_to_sqlite(dbName, path_recebidos, tbName):
-    con = sqlite3.connect(dbName)
-
-    all_files = glob.glob(path_recebidos + "\*" + ".csv")
-    n = 0
-    li = []
-    for filename in all_files:
-        try:
-            df = pd.read_csv(filename, sep=';')
-            df.to_sql(tbName, con, if_exists='append', index=False)
-            n += 1
-        except:
-            li.append(filename)
-    arq_ok = n
-    return arq_ok, li
+def df_to_sqlite(df: pd.DataFrame, db_file, tbName):
+    conn = sqlite3.connect(db_file)
+    return df.to_sql(tbName, conn, if_exists='append', index=False)
 
 
 def get_column_names_from_db_table(dbName, table_name):

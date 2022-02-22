@@ -4,7 +4,11 @@ from xmlrpc.client import Boolean
 db_file = '/home/marcello/git/lumini/leads_old/database/chinook.db'
 sqlite3.connect(db_file).close()
 
-def do_select(db_file, sql) -> pd.DataFrame:
+def df_to_sqlite(df: pd.DataFrame, db_file, tbName):
+    conn = sqlite3.connect(db_file)
+    return df.to_sql(tbName, conn, if_exists='append', index=False)
+
+def do_select(db_file, sql, table_name) -> pd.DataFrame:
     """Executa e mostra o resultado de uma consulta SQL.
     
     Parameters:
@@ -25,13 +29,23 @@ def do_select(db_file, sql) -> pd.DataFrame:
     try:
         with sqlite3.connect(db_file) as conn:
             cursor = conn.cursor()
+            table_column_names = 'PRAGMA table_info(' + table_name + ');'
+            cursor.execute(table_column_names)
+            columns = cursor.fetchall()
+            
+            column_names = list()
+            for name in columns:
+                column_names.append(name[1])
+            df = pd.DataFrame(column_names)
+            
             cursor.execute(sql)
             rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            return pd.DataFrame(data=rows, columns=column_names)
         conn.close()
-        return True
-    except:
+        
+        
+    except Exception as ex:
+        print(ex)
         conn.close()
         return False
 
@@ -200,5 +214,10 @@ def do_delete(db_file, sql) -> Boolean:
     except:
         return False
 
+# db_file = '/home/marcello/git/lumini/leads_old/database/chinook.db'
+# sql = """
+#     SELECT * FROM tracks LIMIT 100
+# """
+# df = do_select(db_file, sql, 'tracks')
 
-
+# df.to_csv('/home/marcello/git/lumini/leads_old/df_teste.csv', index=False)
