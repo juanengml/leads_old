@@ -34,13 +34,9 @@ def shifts():
 
 
 @pytest.fixture
-def internal_brokers():
-    return ["3416837525"]
-
-
-@pytest.fixture
 def brokers():
-    return ["3416837525"]
+    return ["41266296883",
+            "20542776812"]
 
 
 @pytest.fixture
@@ -56,6 +52,7 @@ def request_body():
 
 
 def test_get_request_body(request_body):
+    """Test body of the request for broker API."""
     date = datetime.datetime.strptime("22/02/2022",
                                       "%d/%m/%Y")
     expected = request_body
@@ -77,44 +74,57 @@ def test_prepare_lead_errors(leads_data_error):
 
 
 def test_get_brokers(shifts, brokers):
-    """Test brokers ready for work"""
+    """Test brokers ready for work."""
     output = get_brokers(shifts, brokers)
     assert isinstance(output, list), "Wrong brokers type"
     assert len(output) > 0, "Incorrect number of brokers"
 
 
 def test_filter_brokers(prepared_lead_data, brokers):
-    """Test if broker that have already reached fair indice"""
+    """Test if broker that have already reached fair indice."""
     output = filter_brokers(prepared_lead_data, brokers)
 
     assert isinstance(output, list), "Wrong brokers type"
-    assert len(output) == 0, "Filtered list must be equal " \
+    assert len(output) == len(brokers), "Filtered list must be equal " \
                                         "original list"
 
 
 def test_lead_score(prepared_lead_data):
-    """Test lead score prediction"""
+    """Test lead score prediction."""
     output = lead_score(prepared_lead_data)
     assert isinstance(output, tuple), "Wrong output type"
-    assert isinstance(output[0], int), "Wrong label type"
-    assert isinstance(output[1], float), "Wrong proba type"
+    assert isinstance(output[0], np.integer), "Wrong label type"
+    assert isinstance(output[1], np.floating), "Wrong proba type"
 
 
 def test_lead_recommendation(scored_lead, brokers):
-    """Test lead-broker recommendation"""
+    """Test lead-broker recommendation."""
     output = lead_recommendation(scored_lead, brokers)
     assert isinstance(output, tuple), "Wrong output type"
     assert isinstance(output[0], str), "Wrong label type"
-    assert isinstance(output[1], float), "Wrong proba type"
+    assert isinstance(output[1], np.floating), "Wrong proba type"
 
 
 def test_process_lead(prepared_lead_data, brokers):
     """Test processing steps for the lead score prediction and
-    recommendation"""
+    recommendation."""
     output = process_lead(prepared_lead_data, brokers)
     assert isinstance(output, tuple), "Wrong output type"
     assert isinstance(output[0], str), "Wrong label type"
-    assert isinstance(output[1], float), "Wrong proba type"
+    assert isinstance(output[1], np.floating), "Wrong proba type"
+
+
+def test_integration_process_lead(leads_data, brokers):
+    """Test prepare_leads(), filter_brokers() and process_lead() workflow."""
+    prepared_leads = prepare_lead(leads_data)
+    prepared_lead = prepared_leads.iloc[0, :]
+    filtered_brokers = filter_brokers(prepared_lead, brokers)
+    recommended_broker, recommended_score = process_lead(
+        prepared_lead, filtered_brokers)
+    assert isinstance(recommended_broker, str), "Wrong label type"
+    assert isinstance(recommended_score, np.floating), "Wrong proba type"
+
+
 
 
 

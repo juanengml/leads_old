@@ -8,13 +8,16 @@ import numpy as np
 import unidecode
 import pandas as pd
 
+from log import Logger
 import corretores_lib
 import prepara_dados
 import aux_function
 from config import HEADERS, URL_PLANTAO
-from artefatos import features, preprocessor, preprocessor_cluster, \
-    xgboost_loaded_model, categoria_treino, features_cluster, matriz
+from artefatos import features, preprocessor, xgboost_loaded_model, \
+    features_cluster, matriz
 
+
+log = Logger('leads')
 INTERNAL_BROKER_FILENAME = 'historico_bi/internal_brokers.xlsx'
 
 
@@ -137,10 +140,12 @@ def get_shifts():
     return shifts
 
 
-def filter_brokers(lead, brokers_on_duty):
+def filter_brokers(lead, brokers_on_duty, working_days=30):
     """Filter by UF, capacity and Fair Indices
 
     Args:
+        working_days (int): How many working days a broker needs to use
+         fair indice
         lead (dict): Leads informations
         brokers_on_duty (list): Broker list (each element is a dict)
 
@@ -157,7 +162,19 @@ def filter_brokers(lead, brokers_on_duty):
     brokers_matches = list(map(lambda x: get_matches_quantity(x),
                                brokers_on_duty))
 
+    brokers_working_days = list(map(lambda x: get_working_days(x),
+                                    brokers_on_duty))
+
     if len(brokers_on_duty) == 0 or sum(brokers_matches) == 0:
+        return brokers_on_duty
+
+    brokers_fair = list(filter(lambda x: x[1] >= working_days,
+                                  zip(brokers_on_duty,
+                                      brokers_working_days)))
+    brokers_fair = list(map(lambda x: x[0], brokers_fair))
+
+    # Requirements to use fair indices
+    if len(brokers_fair) == 0:
         return brokers_on_duty
 
     brokers_fair = list(map(lambda x: x / sum(brokers_matches),
@@ -179,7 +196,13 @@ def update_broker(broker_cpf):
     """Update broker capacity and Fair Indices (if necessary) for internal
     control"""
     # TODO Do it by database operations
-    return True
+    return 1
+
+
+def get_working_days(broker_cpf):
+    """Query how many days the broker has data in the database"""
+    # TODO Do it by database operations
+    return 1
 
 
 def get_capacity_broker(broker_cpf):
@@ -199,41 +222,41 @@ def get_matches_quantity(broker_cpf, days=0):
 def insert_lead(lead):
     """Insert lead in the database"""
     # TODO Do it by database operations
-    return True
+    return 1
 
 
 def insert_match(lead, broker, score):
     """Insert lead in the database"""
     # TODO Do it by database operations
-    return True
+    return 1
 
 
-def get_matriz_justa(filtered_matriz, justice_degree=0.1):
+def get_justice_matrix(filtered_matrix, justice_degree=0.1):
     """
     ?
     Args:
-        filtered_matriz:
+        filtered_matrix:
         justice_degree:
 
     Returns:
 
     """
-    matriz_justa = pd.DataFrame()
-    for lead in filtered_matriz.index:
-        cluster_max = filtered_matriz.loc[lead, :].sort_values(
+    justice_matrix = pd.DataFrame()
+    for lead in filtered_matrix.index:
+        cluster_max = filtered_matrix.loc[lead, :].sort_values(
             ascending=False).max()
-        cluster_min = filtered_matriz.loc[lead, :].sort_values(
+        cluster_min = filtered_matrix.loc[lead, :].sort_values(
             ascending=False).min()
         cluster_range = np.arange(cluster_min, cluster_max, justice_degree)
-        matriz_justa = filtered_matriz.estimativa.loc[lead, :].apply(
+        justice_matrix = filtered_matrix.estimativa.loc[lead, :].apply(
             lambda y: cluster_range[abs(cluster_range - y).argmin()])
 
-    matriz_justa = pd.DataFrame(matriz_justa).T
-    matriz_justa = matriz_justa.reset_index()
-    matriz_justa.rename(columns={'index': 'Leads'}, inplace=True)
+    justice_matrix = pd.DataFrame(justice_matrix).T
+    justice_matrix = justice_matrix.reset_index()
+    justice_matrix.rename(columns={'index': 'Leads'}, inplace=True)
 
-    matriz_justa.fillna(1, inplace=True)
-    return matriz_justa.copy()
+    justice_matrix.fillna(1, inplace=True)
+    return justice_matrix.copy()
 
 
 def lead_recommendation(lead, filtered_brokers):
@@ -246,32 +269,34 @@ def lead_recommendation(lead, filtered_brokers):
     Returns:
 
     """
-    # lead = pd.Series(lead).to_frame().T
-    # x = prepara_dados.data_cluster_prep(lead, features_cluster)
-    # filtered_matriz = matriz[matriz['corretor_id'].isin(
-    #     filtered_brokers)]
-    # filtered_matriz.sort_values(by='corretor_id', inplace=True)
-    # filtered_matriz = pd.merge(filtered_matriz,
-    #                            lead[['ID_LEAD', 'cluster']],
-    #                            how='left', on='cluster').dropna()
-    # filtered_matriz = filtered_matriz[['ID_LEAD',
-    #                                    'corretor_id',
-    #                                    'estimativa']].pivot(
-    #     index='ID_LEAD', columns='corretor_id')
-    #
-    # # TODO Recommend new brokers to a redistributed lead
-    #
-    # matriz_justa = get_matriz_justa(filtered_matriz)
-    # recommendation = corretores_lib.recommender(matriz_justa, x,
-    #                                             redistribuido=False)
-    # if len(recommendation) == 0:
-    #     return None, None
-    #
-    # match_broker = recommendation['CPF_CORRETOR']
-    # match_score = recommendation['RATING']
+    lead = pd.Series(lead).to_frame().T
+    lead = prepara_dados.data_cluster_prep(lead, features_cluster)
+    # TODO CPF as float?
+    filtered_brokers_float = list(map(float, filtered_brokers))
+    filtered_matrix = matriz[matriz['corretor_id'].isin(
+        filtered_brokers_float)]
+    filtered_matrix.sort_values(by='corretor_id', inplace=True)
+    filtered_matrix = pd.merge(filtered_matrix,
+                               lead[['ID_LEAD', 'cluster']],
+                               how='left', on='cluster').dropna()
+    filtered_matrix = filtered_matrix[['ID_LEAD',
+                                       'corretor_id',
+                                       'estimativa']].pivot(
+        index='ID_LEAD', columns='corretor_id')
 
-    match_broker = "3416837525"
-    match_score = 4.5
+    # TODO Recommend new brokers to a redistributed lead
+
+    justice_matrix = get_justice_matrix(filtered_matrix)
+    recommendation = corretores_lib.recommender(justice_matrix, lead,
+                                                redistribuido=False)
+    if len(recommendation) == 0:
+        return None, None
+
+    match_broker = recommendation['CPF_CORRETOR'].values[0]
+    match_broker = str(match_broker)
+    if len(match_broker) < 12:
+        match_broker = f"0{match_broker}"
+    match_score = recommendation['RATING'].values[0]
     return match_broker, match_score
 
 
@@ -284,21 +309,19 @@ def lead_score(lead):
     Returns:
 
     """
-    # cat = features['cat']
-    # num = features['num']
-    # xvar = features['xvar']
-    #
-    # lead = pd.Series(lead).to_frame().T
-    # _, lead = prepara_dados.data_clean(lead, cat, num)
-    # # TODO raise error if category does not exists
-    # lead_x = preprocessor.transform(lead[xvar])
-    # lead_x = pd.DataFrame(lead_x)
-    # lead_x.columns = num + cat
-    # proba = xgboost_loaded_model.predict_proba(lead_x[xvar].values)
-    # label = np.argmax(proba, axis=1)
-    # proba = proba[:, 1]
-    proba = 0.8
-    label = 1
+    cat = features['cat']
+    num = features['num']
+    xvar = features['xvar']
+
+    lead = pd.Series(lead).to_frame().T
+    _, lead = prepara_dados.data_clean(lead, cat, num)
+    # TODO raise error if category does not exists
+    lead_x = preprocessor.transform(lead[xvar])
+    lead_x = pd.DataFrame(lead_x)
+    lead_x.columns = num + cat
+    proba = xgboost_loaded_model.predict_proba(lead_x[xvar].values)
+    label = np.argmax(proba, axis=1)[0]
+    proba = proba[:, 1][0]
     return label, proba
 
 
@@ -332,33 +355,54 @@ def run_motor(leads):
     Returns:
 
     """
-    leads = prepare_lead(leads)
+    try:
+        log.info('Iniciando recomendação de leads')
+        leads = prepare_lead(leads)
 
-    shifts = request_broker_shifts()
-    brokers = get_brokers(shifts, get_internal_brokers(INTERNAL_BROKER_FILENAME))
-    update_broker(brokers)
+        shifts = request_broker_shifts()
+        brokers = get_brokers(shifts, get_internal_brokers(
+            INTERNAL_BROKER_FILENAME))
+        log.info(f'{len(brokers)} corretores estão de plantão')
 
-    recommendation_output = {}
-    for idx, lead in leads.iterrows():
-        lead = lead.to_dict()
-        filtered_brokers = filter_brokers(lead, brokers.copy())
+        update_broker(brokers)
 
-        recommended_score = 0.0
+        log.info(f'Processando {len(leads)} leads')
+        recommendation_output = {}
+        for idx, lead in leads.iterrows():
+            log.info(f'Lead {lead}, iniciando recomendação')
+            lead = lead.to_dict()
+            filtered_brokers = filter_brokers(lead, brokers.copy())
 
-        if len(filtered_brokers) == 0:
-            # TODO What to
-            recommended_broker = random.choice(brokers)
-        else:
-            recommended_broker, recommended_score = process_lead(
-                lead, filtered_brokers)
+            recommended_score = 0.0
+            if len(filtered_brokers) == 0:
+                # TODO What to do if no broker on duty with the same uf,
+                #  available capacity and fair indice is found?
+                log.info(f'Nenhum corretor com a mesma UF, com capacity e fair '
+                         f'indice disponível. Recomendando aleatório')
+                recommended_broker = random.choice(brokers)
+            else:
+                log.info(f'{len(filtered_brokers)} possíveis candidatos'
+                         f' encontrados')
+                recommended_broker, recommended_score = process_lead(
+                    lead, filtered_brokers)
+                log.info(f'Resultado recomendação: {recommended_broker}')
 
-            if not recommended_broker:
-                recommended_broker = random.choice(filtered_brokers)
+                if not recommended_broker:
+                    log.info(f'Nenhum corretor pode atender o lead. '
+                             f'Recomendando aleatório')
+                    recommended_broker = random.choice(filtered_brokers)
 
-        insert_lead(lead)
-        insert_match(lead, recommended_broker, recommended_score)
-        recommendation_output[idx] = {"ID_LEAD": lead['cpf'],
-                                      "CPF_CORRETOR": recommended_broker,
-                                      "RATING": recommended_score}
+            insert_lead(lead)
+            insert_match(lead, recommended_broker, recommended_score)
+            recommendation_output[idx] = {"ID_LEAD": lead['cpf'],
+                                          "CPF_CORRETOR": recommended_broker,
+                                          "RATING": recommended_score}
+        recommendation_output["MESSAGE"] = "Successful recommendations"
+        recommendation_output["STATUS"] = "Ok"
+        log.info(f'Todos os leads foram processados')
+    except BaseException as ex:
+        log.error(f'Erro capturado, {ex}')
+        recommendation_output = {"MESSAGE": ex, "STATUS": "Error"}
+        return recommendation_output
 
 
