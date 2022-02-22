@@ -1,0 +1,36 @@
+[
+  {
+    "leadsDistribuidos": 0 ,
+    "uf": "SC" ,
+    "diasSemana": [
+      {
+        "domingo": true
+      } ,
+      {
+        "segunda-feira": true
+      } ,
+      {
+        "terca-feira": true
+      } ,
+      {
+        "quarta-feira": true
+      } ,
+      {
+        "quinta-feira": true
+      } ,
+      {
+        "sexta-feira": true
+      } ,
+      {
+        "sabado": true
+      }
+    ] ,
+    "quantidadeRedistribuicao": 10 ,
+    "quantidadeLeads": 30 ,
+    "canal": "INTERNO" ,
+    "leadsRedistribuido": 0 ,
+    "enviadoIniciado": true ,
+    "cpf": "3416837525" ,
+    "pausado": false
+  }
+]

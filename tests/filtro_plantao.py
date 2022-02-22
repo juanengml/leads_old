@@ -29,7 +29,7 @@ def filtro_plantao_new(increment_time=5):
     log_corretor_plantao = pd.DataFrame({'cpf': list(map(lambda x: x['cpf'], corretores)),
                                          'canal': list(map(lambda x: x['canal'], corretores))})
     
-    log_corretor_plantao['Filtro'] =  log_corretor_plantao.cpf.apply(
+    log_corretor_plantao['Filtro'] = log_corretor_plantao.cpf.apply(
         lambda x: x in corretor_plantao_cpf)
 
     get_column = lambda col: list(map(lambda x: x[col], corretor_plantao))
@@ -53,7 +53,7 @@ def filtro_plantao_new(increment_time=5):
     log_corretor_plantao = log_corretor_plantao.drop('corretor_plantao', axis=1)
     
     # tabele de corretores canal interno envida pela Jessica ------------------------------------
-    corretore_canal_interno = pd.read_excel('historico_bi/consultores_canal_interno.xlsx')
+    corretore_canal_interno = pd.read_excel('historico_bi/internal_brokers.xlsx')
     corretore_canal_interno=list(corretore_canal_interno.CPF.unique())
     corretor_plantao_df = corretor_plantao_df[corretor_plantao_df["corretor_plantao"].isin(
         corretore_canal_interno)]
@@ -95,7 +95,7 @@ def filtro_plantao():
     log_corretor_plantao = log_corretor_plantao.drop('corretor_plantao', axis=1)
     
     # tabele de corretores canal interno envida pela Jessica ------------------------------------
-    corretore_canal_interno = pd.read_excel('historico_bi/consultores_canal_interno.xlsx')
+    corretore_canal_interno = pd.read_excel('historico_bi/internal_brokers.xlsx')
     corretore_canal_interno=list(corretore_canal_interno.CPF.unique())
     corretor_plantao_df = corretor_plantao_df[corretor_plantao_df["corretor_plantao"].isin(corretore_canal_interno)]
     #------------------------------------------------------------------------------------------------------------
