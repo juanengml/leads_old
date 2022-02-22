@@ -1,10 +1,12 @@
 import json
+import datetime
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from motor_predict_new import prepare_lead, get_brokers, filter_brokers, \
-    process_lead
+    process_lead, lead_score, lead_recommendation, get_request_body
 
 
 @pytest.fixture
@@ -38,8 +40,27 @@ def internal_brokers():
 
 @pytest.fixture
 def brokers():
-    f = open('sample_brokers.json', 'r')
+    return ["3416837525"]
+
+
+@pytest.fixture
+def scored_lead():
+    f = open('sample_scored_lead.json', 'r')
     return json.loads(f.read())
+
+
+@pytest.fixture
+def request_body():
+    return {"DataHoraInicio": "2022-02-22 00:00:00",
+            "DataHoraFim": "2022-02-22 23:59:59"}
+
+
+def test_get_request_body(request_body):
+    date = datetime.datetime.strptime("22/02/2022",
+                                      "%d/%m/%Y")
+    expected = request_body
+    output = get_request_body(date, date)
+    assert expected == output, "Incorrect datetime format"
 
 
 def test_prepare_lead(leads_data):
@@ -55,23 +76,46 @@ def test_prepare_lead_errors(leads_data_error):
         prepare_lead(leads_data_error)
 
 
-def test_get_brokers(shifts, internal_brokers):
+def test_get_brokers(shifts, brokers):
     """Test brokers ready for work"""
-    output = get_brokers(shifts, internal_brokers)
+    output = get_brokers(shifts, brokers)
     assert isinstance(output, list), "Wrong brokers type"
     assert len(output) > 0, "Incorrect number of brokers"
 
 
 def test_filter_brokers(prepared_lead_data, brokers):
+    """Test if broker that have already reached fair indice"""
     output = filter_brokers(prepared_lead_data, brokers)
 
     assert isinstance(output, list), "Wrong brokers type"
-    assert len(output) == len(brokers), "Filtered list must be equal " \
+    assert len(output) == 0, "Filtered list must be equal " \
                                         "original list"
 
 
+def test_lead_score(prepared_lead_data):
+    """Test lead score prediction"""
+    output = lead_score(prepared_lead_data)
+    assert isinstance(output, tuple), "Wrong output type"
+    assert isinstance(output[0], int), "Wrong label type"
+    assert isinstance(output[1], float), "Wrong proba type"
+
+
+def test_lead_recommendation(scored_lead, brokers):
+    """Test lead-broker recommendation"""
+    output = lead_recommendation(scored_lead, brokers)
+    assert isinstance(output, tuple), "Wrong output type"
+    assert isinstance(output[0], str), "Wrong label type"
+    assert isinstance(output[1], float), "Wrong proba type"
+
+
 def test_process_lead(prepared_lead_data, brokers):
+    """Test processing steps for the lead score prediction and
+    recommendation"""
     output = process_lead(prepared_lead_data, brokers)
+    assert isinstance(output, tuple), "Wrong output type"
+    assert isinstance(output[0], str), "Wrong label type"
+    assert isinstance(output[1], float), "Wrong proba type"
+
 
 
 

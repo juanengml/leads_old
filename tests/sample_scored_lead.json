@@ -75,5 +75,9 @@
   "dia_de_semana": 2 ,
   "Hora_atribuida_dt_geracao": 10 ,
   "FlClienteAtivo": "FALSE" ,
-  "filtro_praca": 0
+  "filtro_praca": 0 ,
+  "score": 0.8 ,
+  "flag_previsao": 1 ,
+  "Score_xgboost_bin": "Alto" ,
+  "age_bins": "11-20"
 }
