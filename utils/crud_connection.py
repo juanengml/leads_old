@@ -1,9 +1,10 @@
 import sqlite3
+import pandas as pd
 from xmlrpc.client import Boolean
 db_file = '/home/marcello/git/lumini/leads_old/database/chinook.db'
 sqlite3.connect(db_file).close()
 
-def do_select(db_file, sql) -> Boolean:
+def do_select(db_file, sql) -> pd.DataFrame:
     """Executa e mostra o resultado de uma consulta SQL.
     
     Parameters:
@@ -13,8 +14,8 @@ def do_select(db_file, sql) -> Boolean:
 
     Returns:
     ----------
-        True: o resultado é apresentado
-        False: ocorreu erro
+        df: pandas.DataFrame
+        False: Boolean
     
     Example:
     ----------
