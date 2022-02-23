@@ -293,9 +293,9 @@ def lead_recommendation(lead, filtered_brokers):
         return None, None
 
     match_broker = recommendation['CPF_CORRETOR'].values[0]
-    match_broker = str(match_broker)
-    if len(match_broker) < 12:
-        match_broker = f"0{match_broker}"
+    match_broker = str(int(match_broker))
+    if len(match_broker) < 11:
+        match_broker = f"0{int(match_broker)}"
     match_score = recommendation['RATING'].values[0]
     return match_broker, match_score
 
