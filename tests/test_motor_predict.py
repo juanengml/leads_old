@@ -103,6 +103,7 @@ def test_lead_recommendation(scored_lead, brokers):
     assert isinstance(output, tuple), "Wrong output type"
     assert isinstance(output[0], str), "Wrong label type"
     assert isinstance(output[1], np.floating), "Wrong proba type"
+    assert output[0] in brokers, "Recommended broker is not on duty"
 
 
 def test_process_lead(prepared_lead_data, brokers):
