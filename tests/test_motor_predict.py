@@ -6,7 +6,9 @@ import pandas as pd
 import pytest
 
 from motor_predict_new import prepare_lead, get_brokers, filter_brokers, \
-    process_lead, lead_score, lead_recommendation, get_request_body
+    process_lead, lead_score, lead_recommendation, get_request_body, \
+    update_broker, select_brokers, insert_lead, insert_match, \
+    get_capacity_broker, get_working_days, get_matches_quantity, run_motor
 
 
 @pytest.fixture
@@ -51,6 +53,24 @@ def request_body():
             "DataHoraFim": "2022-02-22 23:59:59"}
 
 
+@pytest.fixture
+def broker_information():
+    return [dict(cpf="41266296883", quantidadeLeads=30, uf="SP"),
+            dict(cpf="20542776812", quantidadeLeads=30, uf="SP")]
+
+
+@pytest.fixture
+def brokers_with_leads_uf(brokers):
+    return [brokers, 'SP']
+
+
+@pytest.fixture
+def match_data():
+    return ["8339050907",
+            "41266296883",
+            4.7]
+
+
 def test_get_request_body(request_body):
     """Test body of the request for broker API."""
     date = datetime.datetime.strptime("22/02/2022",
@@ -85,8 +105,6 @@ def test_filter_brokers(prepared_lead_data, brokers):
     output = filter_brokers(prepared_lead_data, brokers)
 
     assert isinstance(output, list), "Wrong brokers type"
-    assert len(output) == len(brokers), "Filtered list must be equal " \
-                                        "original list"
 
 
 def test_lead_score(prepared_lead_data):
@@ -115,10 +133,51 @@ def test_process_lead(prepared_lead_data, brokers):
     assert isinstance(output[1], np.floating), "Wrong proba type"
 
 
-def test_integration_process_lead(leads_data, brokers):
+def test_update_broker(broker_information):
+    output = update_broker(broker_information)
+    assert isinstance(output, bool), "Invalid operation result type"
+    assert output is True, "Update operation doesn't work"
+
+
+def test_select_brokers(brokers_with_leads_uf):
+    output = select_brokers(*brokers_with_leads_uf)
+    assert isinstance(output, list), "Wrong selected data type"
+
+
+def test_get_working_days(brokers):
+    output = get_working_days(brokers[0])
+    assert isinstance(output, int), "Invalid working days type"
+    assert output > 0, "Negative working days"
+
+
+def test_get_capacity_broker(brokers):
+    output = get_capacity_broker(brokers[0])
+    assert isinstance(output, int), "Invalid capacity type"
+    assert output > 0, "Negative capacity"
+
+
+def test_insert_lead(prepared_lead_data):
+    output = insert_lead(prepared_lead_data)
+    assert isinstance(output, bool), "Invalid operation result type"
+
+
+def test_insert_match(match_data):
+    output = insert_match(*match_data, 'RECOMMENDATION')
+    assert isinstance(output, bool), "Invalid operation result type"
+
+
+def test_get_matches_quantity(brokers):
+    output = get_matches_quantity(brokers[0])
+    assert isinstance(output, int), "Invalid matches quantity type"
+
+
+def test_integration_process_lead(leads_data, broker_information):
     """Test prepare_leads(), filter_brokers() and process_lead() workflow."""
     prepared_leads = prepare_lead(leads_data)
     prepared_lead = prepared_leads.iloc[0, :]
+    update_broker(broker_information)
+
+    brokers = list(map(lambda x: x['cpf'], broker_information))
     filtered_brokers = filter_brokers(prepared_lead, brokers)
     recommended_broker, recommended_score = process_lead(
         prepared_lead, filtered_brokers)
@@ -126,7 +185,8 @@ def test_integration_process_lead(leads_data, brokers):
     assert isinstance(recommended_score, np.floating), "Wrong proba type"
 
 
-
-
-
-
+def teste_run_motor(leads_data, shifts, brokers):
+    output = run_motor(leads_data, shifts, brokers)
+    n_leads = len(leads_data['CPF'])
+    assert len(output.keys()) == n_leads, "Incorrect number of output" \
+                                          " messages"
