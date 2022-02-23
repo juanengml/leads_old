@@ -1,0 +1,546 @@
+{
+  "LEAD_CAPTURA": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "LEAD_SOLICITACAO": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "DATA_NASCIMENTO": {
+    "333": "2003-05-18" ,
+    "273": "1967-11-22" ,
+    "2": "1991-05-14" ,
+    "361": "1976-07-15" ,
+    "293": "1995-03-23" ,
+    "44": "1981-07-27"
+  } ,
+  "DH_INTEGRACAO": {
+    "333": 1624457446189 ,
+    "273": 1624451669793 ,
+    "2": 1621552819858 ,
+    "361": 1629845703760 ,
+    "293": 1624453485945 ,
+    "44": 1624331367615
+  } ,
+  "OPERADORA": {
+    "333": null ,
+    "273": "SulAm\u00e9rica Sa\u00fade" ,
+    "2": "Bradesco Sa\u00fade" ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "FL_65_ANOS": {
+    "333": false ,
+    "273": false ,
+    "2": false ,
+    "361": false ,
+    "293": false ,
+    "44": false
+  } ,
+  "HORA_PEDIDOONLINE": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "LEAD_MOBILE": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": "SW_MOBILE_SIM"
+  } ,
+  "PLANO": {
+    "333": null ,
+    "273": "Especial 100 Ades\u00e3o Trad.16 HO QP - 2" ,
+    "2": "Bradesco Sa\u00fade Hospitalar Nacional 2 E CA 6" ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "EMAIL": {
+    "333": "orilorena@gmail.com" ,
+    "273": "eliscruzca3@hotmail.com" ,
+    "2": "alexwilkermed@hotmail.com" ,
+    "361": "alvesferreiraleo@gmail.com" ,
+    "293": "gabrielsenag@hotmail.com" ,
+    "44": "regianezulmira@gmail.com"
+  } ,
+  "ENTIDADE": {
+    "333": "UBES" ,
+    "273": "AFPESP" ,
+    "2": "AMB" ,
+    "361": "ACRESP" ,
+    "293": "SEESP - Engenheiro " ,
+    "44": "N\u00e3o definida"
+  } ,
+  "COD_OPERADORA": {
+    "333": 0.0 ,
+    "273": 18.0 ,
+    "2": 16.0 ,
+    "361": null ,
+    "293": 0.0 ,
+    "44": 0.0
+  } ,
+  "LEAD_DETALHE_PLANO": {
+    "333": null ,
+    "273": "SW_DETALHES_DO_PLANO" ,
+    "2": "SW_DETALHES_DO_PLANO" ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "ID_LEAD": {
+    "333": 4831631 ,
+    "273": 4831510 ,
+    "2": 4899276 ,
+    "361": 5454072 ,
+    "293": 4831561 ,
+    "44": 4829575
+  } ,
+  "NM_ORIGEM": {
+    "333": "CAPTURA" ,
+    "273": "DETALHE DO PLANO" ,
+    "2": "DETALHE DO PLANO" ,
+    "361": "CAPTURA" ,
+    "293": "CAPTURA" ,
+    "44": "MOBILE"
+  } ,
+  "UF": {
+    "333": "SC" ,
+    "273": "SP" ,
+    "2": "MG" ,
+    "361": "MG" ,
+    "293": "SP" ,
+    "44": "SP"
+  } ,
+  "FL_CLIENTE_ATIVO": {
+    "333": false ,
+    "273": true ,
+    "2": false ,
+    "361": false ,
+    "293": true ,
+    "44": false
+  } ,
+  "MIDIA_CAMPANHA": {
+    "333": "link_simulador_landing_page" ,
+    "273": "Simulador_de_planos_home" ,
+    "2": null ,
+    "361": "coletivos_por_adesao" ,
+    "293": "Simulador_de_planos_home" ,
+    "44": "G-saopaulo_smartcampaign_gdn_gdn_desktop_alwayson"
+  } ,
+  "LEAD_CLICK_TO_CALL": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "ADICIONA_DEP": {
+    "333": "N" ,
+    "273": "N" ,
+    "2": "N" ,
+    "361": null ,
+    "293": "S" ,
+    "44": "N"
+  } ,
+  "DH_CAPTURA_LEAD_ORIGEM": {
+    "333": 1624456753847 ,
+    "273": 1624449806790 ,
+    "2": 1621552156947 ,
+    "361": 1629845073000 ,
+    "293": 1624451842717 ,
+    "44": 1624329958803
+  } ,
+  "OBSERVACAO": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "MIDIA_VEICULO": {
+    "333": "landing" ,
+    "273": "btn_interno" ,
+    "2": null ,
+    "361": "site_qualicorp" ,
+    "293": "btn_interno" ,
+    "44": "google"
+  } ,
+  "LEAD_PEDIDOONLINE": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "HORA_CAPTURA": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "HORA_SOLICITACAO": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "QTD_DEPENDENTES": {
+    "333": 0.0 ,
+    "273": 0.0 ,
+    "2": 0.0 ,
+    "361": 3.0 ,
+    "293": 1.0 ,
+    "44": 0.0
+  } ,
+  "MIDIA_FORMATO": {
+    "333": "link" ,
+    "273": "barra_banner_principal" ,
+    "2": null ,
+    "361": "btn_interno" ,
+    "293": "barra_banner_principal" ,
+    "44": "smartcampaign"
+  } ,
+  "COD_ENTIDADE": {
+    "333": 229.0 ,
+    "273": 18.0 ,
+    "2": 24.0 ,
+    "361": null ,
+    "293": 111.0 ,
+    "44": 247.0
+  } ,
+  "HORA_MOBILE": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": "23:45:59:880"
+  } ,
+  "COD_PLANO": {
+    "333": 0.0 ,
+    "273": 445.0 ,
+    "2": 763.0 ,
+    "361": null ,
+    "293": 0.0 ,
+    "44": 0.0
+  } ,
+  "TELEFONE_SECUNDARIO": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "SEGMENTACAO": {
+    "333": "ADES\u00c3O" ,
+    "273": "ADES\u00c3O" ,
+    "2": "ADES\u00c3O" ,
+    "361": "ADES\u00c3O" ,
+    "293": "ADES\u00c3O" ,
+    "44": "ADES\u00c3O"
+  } ,
+  "PROFISSAO": {
+    "333": "Estudante do Ensino M\u00e9dio ou Fundamental" ,
+    "273": "Servidor P\u00fablico" ,
+    "2": "M\u00e9dico" ,
+    "361": "Oficial de Justi\u00e7a" ,
+    "293": "Engenheiro " ,
+    "44": "N\u00e3o definida"
+  } ,
+  "TELEFONE_PRINCIPAL": {
+    "333": 47988733404.0 ,
+    "273": 11963976722.0 ,
+    "2": 92999063615.0 ,
+    "361": 31997857997.0 ,
+    "293": 12981870177.0 ,
+    "44": 15997634893.0
+  } ,
+  "HORA_DETALHE_PLANO": {
+    "333": null ,
+    "273": "09:05:01:187" ,
+    "2": "20:11:06:207" ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "GRUPO_ORIGEM": {
+    "333": "CAPTURA" ,
+    "273": "DETALHE DO PLANO" ,
+    "2": "DETALHE DO PLANO" ,
+    "361": "CAPTURA" ,
+    "293": "CAPTURA" ,
+    "44": "MOBILE"
+  } ,
+  "FL_COGNITIVO": {
+    "333": true ,
+    "273": true ,
+    "2": true ,
+    "361": true ,
+    "293": true ,
+    "44": true
+  } ,
+  "HORA_CLICK_TO_CALL": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "ID_LEAD_ORIGEM": {
+    "333": "SIM4680965" ,
+    "273": "SIM4680840" ,
+    "2": "SIM4648635" ,
+    "361": "5920007" ,
+    "293": "SIM4680876" ,
+    "44": "SIM4679324"
+  } ,
+  "CPF": {
+    "333": 8339050907.0 ,
+    "273": 9428382892.0 ,
+    "2": 98743430287.0 ,
+    "361": 3662915642.0 ,
+    "293": 4527987100.0 ,
+    "44": 29707298812.0
+  } ,
+  "ORIGEM_INTEGRACAO": {
+    "333": "SIMULADOR" ,
+    "273": "SIMULADOR" ,
+    "2": "SIMULADOR" ,
+    "361": "ECOMMERCE" ,
+    "293": "SIMULADOR" ,
+    "44": "SIMULADOR"
+  } ,
+  "DATA_NASC_DEPENDENTES": {
+    "333": "[]" ,
+    "273": "[]" ,
+    "2": "[]" ,
+    "361": "[]" ,
+    "293": "['2021-06-23']" ,
+    "44": "[]"
+  } ,
+  "NOME": {
+    "333": "ana julia cristina de freitas" ,
+    "273": "ELISANGELA CRUZ DE CARVALHO" ,
+    "2": "ALEX WILKER" ,
+    "361": "Leonardo Alves Ferreira" ,
+    "293": "Gabriel Sena Galv\u00e3o" ,
+    "44": "Regiane Zulmira de Arruda Ferreira"
+  } ,
+  "RANGE": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": "0-0"
+  } ,
+  "data": {
+    "333": 20210623 ,
+    "273": 20210623 ,
+    "2": 20210520 ,
+    "361": 20210824 ,
+    "293": 20210623 ,
+    "44": 20210622
+  } ,
+  "PRACA": {
+    "333": "SC" ,
+    "273": "GSP" ,
+    "2": "DEMAIS" ,
+    "361": "MG" ,
+    "293": "GSP" ,
+    "44": "SOROCABA"
+  } ,
+  "DH_FIM_LEAD_ORIGEM": {
+    "333": 1624457353847.0 ,
+    "273": 1624450406790.0 ,
+    "2": 1621552756947.0 ,
+    "361": null ,
+    "293": 1624452442717.0 ,
+    "44": 1624330558803.0
+  } ,
+  "TIPO_ACOMODACAO": {
+    "333": null ,
+    "273": "Apartamento" ,
+    "2": "Enfermaria" ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "REEMBOLSO": {
+    "333": null ,
+    "273": "S" ,
+    "2": "S" ,
+    "361": "N" ,
+    "293": null ,
+    "44": null
+  } ,
+  "VALOR_PLANO_SIMULADO": {
+    "333": null ,
+    "273": "1305.78" ,
+    "2": "320.62" ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "VALOR_PLANO_DEPENDENTES": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": "[]" ,
+    "293": null ,
+    "44": null
+  } ,
+  "NOME_EMPRESA": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "CNPJ": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": 0.0 ,
+    "293": null ,
+    "44": null
+  } ,
+  "DEVICE": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "NUMERO_VIDAS": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "ATENDENTE_CADASTRO": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "CAMPANHA": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "UNIDADE": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "EMAIL_CONSULTOR": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "CONSULTOR": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "LOGIN_CONSULTOR": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "TAG": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "MIDIA_TERMO": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": "btn_amarelo." ,
+    "293": null ,
+    "44": null
+  } ,
+  "MIDIA_CONTEUDO": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": "aquisicao" ,
+    "293": null ,
+    "44": null
+  } ,
+  "ID": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "MIDIA_ORIGEM": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  } ,
+  "ID_ATUALIZACAO_ORIGEM": {
+    "333": null ,
+    "273": null ,
+    "2": null ,
+    "361": null ,
+    "293": null ,
+    "44": null
+  }
+}

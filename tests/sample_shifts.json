@@ -1,0 +1,50 @@
+[
+  {
+    "idPlantao": 1041828377 ,
+    "QuantidadesCorretores": 1 ,
+    "befair": null ,
+    "Corretores": [
+      {
+        "leadsDistribuidos": 0 ,
+        "uf": null ,
+        "diasSemana": [
+          {
+            "domingo": true
+          } ,
+          {
+            "segunda-feira": true
+          } ,
+          {
+            "terca-feira": true
+          } ,
+          {
+            "quarta-feira": true
+          } ,
+          {
+            "quinta-feira": true
+          } ,
+          {
+            "sexta-feira": true
+          } ,
+          {
+            "sabado": true
+          }
+        ] ,
+        "quantidadeRedistribuicao": 10 ,
+        "quantidadeLeads": 30 ,
+        "canal": "INTERNO" ,
+        "leadsRedistribuido": 0 ,
+        "enviadoIniciado": true ,
+        "cpf": "41266296883",
+        "pausado": false
+      }
+    ] ,
+    "status": "Em andamento" ,
+    "DataHoraFim": 1644354000000 ,
+    "CPFSupervisor": 982866500 ,
+    "DataHoraInicio": 1644318000000 ,
+    "NomeSupervisor": "Flavia Machado de Souza" ,
+    "loginExecutor": "laguiar@qualicorp.com.br" ,
+    "login": "vmtavares"
+  }
+]
