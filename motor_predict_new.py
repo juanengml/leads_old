@@ -8,10 +8,11 @@ import numpy as np
 import unidecode
 import pandas as pd
 
-from log import Logger
 import corretores_lib
 import prepara_dados
 import aux_function
+import db.operations as db_operations
+from log import Logger
 from config import HEADERS, URL_PLANTAO
 from artefatos import features, preprocessor, xgboost_loaded_model, \
     features_cluster, matriz
@@ -154,7 +155,7 @@ def filter_brokers(lead, brokers_on_duty, working_days=30):
 
     """
     lead_uf = lead['UF']
-    brokers_on_duty = select_broker(brokers_on_duty, lead_uf)
+    brokers_on_duty = select_brokers(brokers_on_duty, lead_uf)
     brokers_on_duty = list(filter(lambda x: get_matches_quantity(x) <
                                             get_capacity_broker(x),
                                   brokers_on_duty))
@@ -186,23 +187,38 @@ def filter_brokers(lead, brokers_on_duty, working_days=30):
     return brokers_fair
 
 
-def select_broker(broker_cpf, uf):
+def select_brokers(brokers_cpf, uf):
     """Select broker data by cpf and uf"""
     # TODO Do it by database operations
-    return broker_cpf
+    sql = f'SELECT cpf FROM leads_broker WHERE uf=? AND cpf IN ' \
+          f'{tuple(map(int, brokers_cpf))}'
+    brokers_cpf = db_operations.do_select(sql, [uf])
+    brokers_cpf = [b[0] for b in brokers_cpf]
+    return brokers_cpf
 
 
-def update_broker(broker_cpf):
-    """Update broker capacity and Fair Indices (if necessary) for internal
-    control"""
-    # TODO Do it by database operations
-    return 1
+def update_broker(brokers):
+    """Update broker capacity and Fair Indices (if necessary) for
+     internal control"""
+    sql = 'INSERT INTO leads_broker(cpf, capacity, uf)' \
+          'VALUES (?,?,?)'
+    brokers = list(map(lambda x: (x['cpf'],
+                                  x['quantidadeLeads'],
+                                  x['uf']), brokers))
+
+    list(map(lambda x: db_operations.do_insert(sql, x), brokers))
+    sql_update = 'UPDATE leads_broker SET capacity=? where cpf=?'
+
+    result = list(map(lambda x: db_operations.do_update(sql_update,
+                                                        [x[0], x[1]]),
+                      brokers))
+    return all(result)
 
 
 def get_working_days(broker_cpf):
     """Query how many days the broker has data in the database"""
-    # TODO Do it by database operations
-    return 1
+    sql = f'SELECT COUNT(*) FROM leads_match WHERE cpf_broker = ?'
+    return db_operations.do_select(sql, [broker_cpf])[0][0]
 
 
 def get_capacity_broker(broker_cpf):
@@ -221,6 +237,8 @@ def get_matches_quantity(broker_cpf, days=0):
 
 def insert_lead(lead):
     """Insert lead in the database"""
+    sql = 'INSERT INTO leads_broker(cpf, capacity,)'
+    db_operations()
     # TODO Do it by database operations
     return 1
 

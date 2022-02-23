@@ -6,7 +6,9 @@ import pandas as pd
 import pytest
 
 from motor_predict_new import prepare_lead, get_brokers, filter_brokers, \
-    process_lead, lead_score, lead_recommendation, get_request_body
+    process_lead, lead_score, lead_recommendation, get_request_body, \
+    update_broker, select_brokers, insert_lead, insert_match, \
+    get_capacity_broker, get_working_days
 
 
 @pytest.fixture
@@ -49,6 +51,18 @@ def scored_lead():
 def request_body():
     return {"DataHoraInicio": "2022-02-22 00:00:00",
             "DataHoraFim": "2022-02-22 23:59:59"}
+
+
+@pytest.fixture
+def broker_information():
+    return {"cpf": "41266296883",
+            "quantidadeLeads": 30,
+            "uf": "SP"}
+
+
+@pytest.fixture
+def brokers_with_leads_uf(brokers):
+    return [brokers, 'SP']
 
 
 def test_get_request_body(request_body):
@@ -126,7 +140,17 @@ def test_integration_process_lead(leads_data, brokers):
     assert isinstance(recommended_score, np.floating), "Wrong proba type"
 
 
+def test_update_broker(broker_information):
+    output = update_broker([broker_information])
+    assert output is True, "Update operation doesn't work"
 
 
+def test_select_brokers(brokers_with_leads_uf):
+    output = select_brokers(*brokers_with_leads_uf)
+    assert output is not None, "Select operation doesn't work"
 
 
+def test_get_working_days(brokers):
+    output = get_working_days(brokers[0])
+    assert isinstance(output, int), "Invalid working days"
+    assert output > 0, "Negative working days"
