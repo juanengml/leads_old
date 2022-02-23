@@ -85,7 +85,7 @@
     "2": "AMB" ,
     "361": "ACRESP" ,
     "293": "SEESP - Engenheiro " ,
-    "44": "N\u00e3o definida"
+    "44": "UBES"
   } ,
   "COD_OPERADORA": {
     "333": 0.0 ,
@@ -120,7 +120,7 @@
     "44": "MOBILE"
   } ,
   "UF": {
-    "333": "SC" ,
+    "333": "SP" ,
     "273": "SP" ,
     "2": "MG" ,
     "361": "MG" ,
@@ -177,10 +177,10 @@
   } ,
   "MIDIA_VEICULO": {
     "333": "landing" ,
-    "273": "btn_interno" ,
+    "273": "landing" ,
     "2": null ,
     "361": "site_qualicorp" ,
-    "293": "btn_interno" ,
+    "293": "landing" ,
     "44": "google"
   } ,
   "LEAD_PEDIDOONLINE": {
@@ -273,11 +273,11 @@
   } ,
   "PROFISSAO": {
     "333": "Estudante do Ensino M\u00e9dio ou Fundamental" ,
-    "273": "Servidor P\u00fablico" ,
+    "273": "Estudante do Ensino Médio ou Fundamental" ,
     "2": "M\u00e9dico" ,
     "361": "Oficial de Justi\u00e7a" ,
     "293": "Engenheiro " ,
-    "44": "N\u00e3o definida"
+    "44": "Engenheiro"
   } ,
   "TELEFONE_PRINCIPAL": {
     "333": 47988733404.0 ,

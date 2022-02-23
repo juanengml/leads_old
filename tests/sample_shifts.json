@@ -37,6 +37,40 @@
         "enviadoIniciado": true ,
         "cpf": "41266296883",
         "pausado": false
+      },
+      {
+        "leadsDistribuidos": 0 ,
+        "uf": null ,
+        "diasSemana": [
+          {
+            "domingo": true
+          } ,
+          {
+            "segunda-feira": true
+          } ,
+          {
+            "terca-feira": true
+          } ,
+          {
+            "quarta-feira": true
+          } ,
+          {
+            "quinta-feira": true
+          } ,
+          {
+            "sexta-feira": true
+          } ,
+          {
+            "sabado": true
+          }
+        ] ,
+        "quantidadeRedistribuicao": 10 ,
+        "quantidadeLeads": 30 ,
+        "canal": "INTERNO" ,
+        "leadsRedistribuido": 0 ,
+        "enviadoIniciado": true ,
+        "cpf": "20542776812",
+        "pausado": false
       }
     ] ,
     "status": "Em andamento" ,

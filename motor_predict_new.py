@@ -1,3 +1,4 @@
+import os
 import json
 import requests
 import random
@@ -13,12 +14,12 @@ import prepara_dados
 import aux_function
 import db.operations as db_operations
 from log import Logger
-from config import HEADERS, URL_PLANTAO
+from config import HEADERS, URL_PLANTAO, main_path
 from artefatos import features, preprocessor, xgboost_loaded_model, \
     features_cluster, matriz
 
 
-log = Logger('leads')
+log = Logger(os.path.join(main_path, 'leads'))
 INTERNAL_BROKER_FILENAME = 'historico_bi/internal_brokers.xlsx'
 
 
@@ -163,11 +164,12 @@ def filter_brokers(lead, brokers_on_duty, working_days=30):
     brokers_matches = list(map(lambda x: get_matches_quantity(x),
                                brokers_on_duty))
 
-    brokers_working_days = list(map(lambda x: get_working_days(x),
-                                    brokers_on_duty))
-
     if len(brokers_on_duty) == 0 or sum(brokers_matches) == 0:
         return brokers_on_duty
+
+    # Fair indices
+    brokers_working_days = list(map(lambda x: get_working_days(x),
+                                    brokers_on_duty))
 
     brokers_fair = list(filter(lambda x: x[1] >= working_days,
                                   zip(brokers_on_duty,
@@ -190,8 +192,8 @@ def filter_brokers(lead, brokers_on_duty, working_days=30):
 def select_brokers(brokers_cpf, uf):
     """Select broker data by cpf and uf"""
     # TODO Do it by database operations
-    sql = f'SELECT cpf FROM leads_broker WHERE uf=? AND cpf IN ' \
-          f'{tuple(map(int, brokers_cpf))}'
+    brokers_cpf = tuple(map(int, brokers_cpf))
+    sql = f'SELECT cpf FROM leads_broker WHERE uf=? AND cpf IN {brokers_cpf}'
     brokers_cpf = db_operations.do_select(sql, [uf])
     brokers_cpf = [b[0] for b in brokers_cpf]
     return brokers_cpf
@@ -201,7 +203,7 @@ def update_broker(brokers):
     """Update broker capacity and Fair Indices (if necessary) for
      internal control"""
     sql = 'INSERT INTO leads_broker(cpf, capacity, uf)' \
-          'VALUES (?,?,?)'
+          'VALUES (?, ?, ?)'
     brokers = list(map(lambda x: (x['cpf'],
                                   x['quantidadeLeads'],
                                   x['uf']), brokers))
@@ -223,30 +225,29 @@ def get_working_days(broker_cpf):
 
 def get_capacity_broker(broker_cpf):
     """Query the broker's capacity registered in the internal database"""
-    # TODO Do it by database operations
-    return 30
+    sql = f'SELECT capacity FROM leads_broker WHERE cpf = ?'
+    return db_operations.do_select(sql, [broker_cpf])[0][0]
 
 
 def get_matches_quantity(broker_cpf, days=0):
     """Query matches quantity for a specific broker in the day"""
     date = datetime.datetime.today().replace(hour=0, minute=0, second=0)
     date = date - timedelta(days=days)
-    # TODO Do it by database operations
-    return 1
+    sql = f'SELECT COUNT(*) FROM leads_match WHERE cpf_broker = ? AND date > ?'
+    return db_operations.do_select(sql, [broker_cpf, date])[0][0]
 
 
 def insert_lead(lead):
     """Insert lead in the database"""
-    sql = 'INSERT INTO leads_broker(cpf, capacity,)'
-    db_operations()
-    # TODO Do it by database operations
-    return 1
+    sql = 'INSERT INTO leads_lead(cpf) VALUES (?)'
+    return db_operations.do_insert(sql, [lead])
 
 
-def insert_match(lead, broker, score):
+def insert_match(lead, broker, score, method):
     """Insert lead in the database"""
-    # TODO Do it by database operations
-    return 1
+    sql = 'INSERT INTO leads_match(date, score, cpf_broker, cpf_lead, ' \
+          'method) VALUES (datetime("now"), ?, ?, ?, ?)'
+    return db_operations.do_insert(sql, [score, broker, lead, method])
 
 
 def get_justice_matrix(filtered_matrix, justice_degree=0.1):
@@ -333,7 +334,7 @@ def lead_score(lead):
 
     lead = pd.Series(lead).to_frame().T
     _, lead = prepara_dados.data_clean(lead, cat, num)
-    # TODO raise error if category does not exists
+    # TODO What happens if category does not exists?
     lead_x = preprocessor.transform(lead[xvar])
     lead_x = pd.DataFrame(lead_x)
     lead_x.columns = num + cat
@@ -364,40 +365,64 @@ def process_lead(lead, filtered_brokers):
     return lead_recommendation(lead, filtered_brokers)
 
 
-def run_motor(leads):
+def random_recommendation(lead_cpf, brokers):
+    """
+    Recommend a random broker to a specific lead and returns a standard
+    output message
+    Args:
+        lead_cpf (int): Lead's cpf
+        brokers (list): List of brokers on duty
+
+    Returns (dict): Standard output message
+    """
+    recommended_broker = random.choice(brokers)
+    insert_lead(lead_cpf)
+    insert_match(lead_cpf, recommended_broker, 0.0, "RANDOM")
+    output = {"ID_LEAD": lead_cpf, "CPF_CORRETOR": recommended_broker,
+              "RATING": 0.0, "METHOD": "RANDOM"}
+    return output
+
+
+def run_motor(leads, shifts=None, internal_brokers=None):
     """
 
     Args:
+        internal_brokers:
+        shifts:
         leads:
 
     Returns:
 
     """
-    try:
-        log.info('Iniciando recomendação de leads')
-        leads = prepare_lead(leads)
+    log.info('Iniciando recomendação de leads')
+    leads = prepare_lead(leads)
 
+    if not shifts:
         shifts = request_broker_shifts()
-        brokers = get_brokers(shifts, get_internal_brokers(
-            INTERNAL_BROKER_FILENAME))
-        log.info(f'{len(brokers)} corretores estão de plantão')
+        internal_brokers = get_internal_brokers(INTERNAL_BROKER_FILENAME)
 
-        update_broker(brokers)
+    brokers = get_brokers(shifts, internal_brokers)
+    log.info(f'{len(brokers)} corretores estão de plantão')
 
-        log.info(f'Processando {len(leads)} leads')
-        recommendation_output = {}
-        for idx, lead in leads.iterrows():
+    update_broker(brokers)
+    brokers = list(map(lambda x: x['cpf'], brokers))
+
+    log.info(f'Processando {len(leads)} leads')
+    recommendation_output = {}
+    for idx, lead in leads.iterrows():
+        # TODO Map internal errors so that a try catch here can be removed
+        try:
             log.info(f'Lead {lead}, iniciando recomendação')
             lead = lead.to_dict()
+            lead_cpf = str(int(lead['CPF']))
             filtered_brokers = filter_brokers(lead, brokers.copy())
 
-            recommended_score = 0.0
-            if len(filtered_brokers) == 0:
+            if len(filtered_brokers) < 2:
                 # TODO What to do if no broker on duty with the same uf,
                 #  available capacity and fair indice is found?
-                log.info(f'Nenhum corretor com a mesma UF, com capacity e fair '
-                         f'indice disponível. Recomendando aleatório')
-                recommended_broker = random.choice(brokers)
+                log.info(f'{len(filtered_brokers)} corretores com a mesma UF, com '
+                         f'capacity e fair indice disponível. Recomendando aleatório')
+                recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
             else:
                 log.info(f'{len(filtered_brokers)} possíveis candidatos'
                          f' encontrados')
@@ -408,19 +433,17 @@ def run_motor(leads):
                 if not recommended_broker:
                     log.info(f'Nenhum corretor pode atender o lead. '
                              f'Recomendando aleatório')
-                    recommended_broker = random.choice(filtered_brokers)
-
-            insert_lead(lead)
-            insert_match(lead, recommended_broker, recommended_score)
-            recommendation_output[idx] = {"ID_LEAD": lead['cpf'],
-                                          "CPF_CORRETOR": recommended_broker,
-                                          "RATING": recommended_score}
-        recommendation_output["MESSAGE"] = "Successful recommendations"
-        recommendation_output["STATUS"] = "Ok"
-        log.info(f'Todos os leads foram processados')
-    except BaseException as ex:
-        log.error(f'Erro capturado, {ex}')
-        recommendation_output = {"MESSAGE": ex, "STATUS": "Error"}
-        return recommendation_output
-
+                    recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
+                    continue
+                insert_lead(lead_cpf)
+                insert_match(lead_cpf, recommended_broker, recommended_score,
+                             'RECOMMENDATION')
+                recommendation_output[idx] = {"ID_LEAD": lead_cpf,
+                                              "CPF_CORRETOR": recommended_broker,
+                                              "RATING": recommended_score,
+                                              "METHOD": "RECOMMENDATION"}
+        except BaseException as ex:
+            log.error(f'Erro capturado: {ex}. Recomendando aleatório')
+            recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
+    return recommendation_output
 
