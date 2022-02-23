@@ -2,9 +2,16 @@ import sqlite3
 import pandas as pd
 from xmlrpc.client import Boolean
 db_file = '/home/marcello/git/lumini/leads_old/database/chinook.db'
-sqlite3.connect(db_file).close()
+db_file_leads = '/home/marcello/git/lumini/leads_old/database/leads.db'
 
-def df_to_sqlite(df: pd.DataFrame, db_file, tbName):
+def do_maintainer_databases() -> None:
+    with sqlite3.connect(db_file) as conn:
+        cursor = conn.cursor(db_file)
+        cursor.execute('PRAGMA auto_vacuum = FULL;')
+    conn.close()
+
+
+def df_to_sqlite(df: pd.DataFrame, db_file, tbName) -> pd.DataFrame:
     conn = sqlite3.connect(db_file)
     return df.to_sql(tbName, conn, if_exists='append', index=False)
 
@@ -40,10 +47,8 @@ def do_select(db_file, sql, table_name) -> pd.DataFrame:
             
             cursor.execute(sql)
             rows = cursor.fetchall()
-            return pd.DataFrame(data=rows, columns=column_names)
         conn.close()
-        
-        
+        return pd.DataFrame(data=rows, columns=column_names)
     except Exception as ex:
         print(ex)
         conn.close()
@@ -213,6 +218,8 @@ def do_delete(db_file, sql) -> Boolean:
         return True
     except:
         return False
+
+do_maintainer_databases
 
 # db_file = '/home/marcello/git/lumini/leads_old/database/chinook.db'
 # sql = """
