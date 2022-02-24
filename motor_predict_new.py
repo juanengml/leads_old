@@ -60,7 +60,7 @@ def request_broker_shifts():
 
 
 def prepare_lead(leads):
-    """ Prepares and validates lead's interest variables
+    """ Prepare and validates lead's interest variables
 
     Args:
         leads (dict): Leads data
@@ -191,7 +191,6 @@ def filter_brokers(lead, brokers_on_duty, working_days=30):
 
 def select_brokers(brokers_cpf, uf):
     """Select broker data by cpf and uf"""
-    # TODO Do it by database operations
     brokers_cpf = tuple(map(int, brokers_cpf))
     sql = f'SELECT cpf FROM leads_broker WHERE uf=? AND cpf IN {brokers_cpf}'
     brokers_cpf = db_operations.do_select(sql, [uf])
@@ -293,7 +292,7 @@ def lead_recommendation(lead, filtered_brokers):
     # TODO CPF as float?
     filtered_brokers_float = list(map(float, filtered_brokers))
     filtered_matrix = matriz[matriz['corretor_id'].isin(
-        filtered_brokers_float)]
+        filtered_brokers_float)].copy()
     filtered_matrix.sort_values(by='corretor_id', inplace=True)
     filtered_matrix = pd.merge(filtered_matrix,
                                lead[['ID_LEAD', 'cluster']],
@@ -412,9 +411,10 @@ def run_motor(leads, shifts=None, internal_brokers=None):
     for idx, lead in leads.iterrows():
         # TODO Map internal errors so that a try catch here can be removed
         try:
-            log.info(f'Lead {lead}, iniciando recomendação')
             lead = lead.to_dict()
             lead_cpf = str(int(lead['CPF']))
+
+            log.info(f'Lead {lead_cpf}, iniciando recomendação')
             filtered_brokers = filter_brokers(lead, brokers.copy())
 
             if len(filtered_brokers) < 2:
@@ -423,25 +423,25 @@ def run_motor(leads, shifts=None, internal_brokers=None):
                 log.info(f'{len(filtered_brokers)} corretores com a mesma UF, com '
                          f'capacity e fair indice disponível. Recomendando aleatório')
                 recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
-            else:
-                log.info(f'{len(filtered_brokers)} possíveis candidatos'
-                         f' encontrados')
-                recommended_broker, recommended_score = process_lead(
-                    lead, filtered_brokers)
-                log.info(f'Resultado recomendação: {recommended_broker}')
+                continue
+            log.info(f'{len(filtered_brokers)} possíveis candidatos'
+                     f' encontrados')
+            recommended_broker, recommended_score = process_lead(
+                lead, filtered_brokers)
+            log.info(f'Resultado recomendação: {recommended_broker}')
 
-                if not recommended_broker:
-                    log.info(f'Nenhum corretor pode atender o lead. '
-                             f'Recomendando aleatório')
-                    recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
-                    continue
-                insert_lead(lead_cpf)
-                insert_match(lead_cpf, recommended_broker, recommended_score,
-                             'RECOMMENDATION')
-                recommendation_output[idx] = {"ID_LEAD": lead_cpf,
-                                              "CPF_CORRETOR": recommended_broker,
-                                              "RATING": recommended_score,
-                                              "METHOD": "RECOMMENDATION"}
+            if not recommended_broker:
+                log.info(f'Nenhum corretor pode atender o lead. '
+                         f'Recomendando aleatório')
+                recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
+                continue
+            insert_lead(lead_cpf)
+            insert_match(lead_cpf, recommended_broker, recommended_score,
+                         'RECOMMENDATION')
+            recommendation_output[idx] = {"ID_LEAD": lead_cpf,
+                                          "CPF_CORRETOR": recommended_broker,
+                                          "RATING": recommended_score,
+                                          "METHOD": "RECOMMENDATION"}
         except BaseException as ex:
             log.error(f'Erro capturado: {ex}. Recomendando aleatório')
             recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
