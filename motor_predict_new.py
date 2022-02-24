@@ -2,25 +2,24 @@ import os
 import json
 import requests
 import random
-import datetime
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import numpy as np
 import unidecode
 import pandas as pd
 
+import historico
 import corretores_lib
 import prepara_dados
 import aux_function
 import db.operations as db_operations
 from log import Logger
-from config import HEADERS, URL_PLANTAO, main_path
+from config import HEADERS, URL_PLANTAO, main_path, URL_TEAMS
 from artefatos import features, preprocessor, xgboost_loaded_model, \
     features_cluster, matriz
 
-
 log = Logger(os.path.join(main_path, 'leads'))
-INTERNAL_BROKER_FILENAME = 'historico_bi/internal_brokers.xlsx'
+INTERNAL_BROKER_FILENAME = 'historico_bi/consultores_canal_interno.xlsx'
 
 
 def get_request_body(start, end):
@@ -47,7 +46,7 @@ def request_broker_shifts():
     Returns:
         list: List of dict representing shifts
     """
-    body = get_request_body(datetime.today, datetime.today)
+    body = get_request_body(datetime.today(), datetime.today())
     response = requests.request('POST', URL_PLANTAO, headers=HEADERS,
                                 data=body)
 
@@ -68,7 +67,7 @@ def prepare_lead(leads):
     Returns:
         pd.DataFrame: Leads information casted to a pd.DataFrame
     """
-    leads = pd.DataFrame(leads)
+    leads = pd.DataFrame(data=leads)
 
     if 'FL_CLIENTE_ATIVO' not in leads.columns:
         leads['FL_CLIENTE_ATIVO'] = False
@@ -78,7 +77,7 @@ def prepare_lead(leads):
 
     for c in cols:
         if c not in leads.columns:
-            raise AttributeError(f'Coluna {c} não encontrada.')
+            leads[c] = np.nan
 
     leads.rename(columns={'MIDIA_VEICULO': 'ORIGEM_DE_MIDIA_VEICULO',
                           'MIDIA_FORMATO': 'ORIGEM_DE_MIDIA_FORMATO',
@@ -86,6 +85,11 @@ def prepare_lead(leads):
                           'ENTIDADE': 'EntidadeLead',
                           'MUNICIPIO': 'CIDADE',
                           'GRUPO_ORIGEM': 'GRUPOORIGEM'}, inplace=True)
+
+    leads['ORIGEM_DE_MIDIA_VEICULO'] = leads['ORIGEM_DE_MIDIA_VEICULO'].astype(str)
+    leads['ORIGEM_DE_MIDIA_FORMATO'] = leads['ORIGEM_DE_MIDIA_FORMATO'].astype(str)
+    leads['EntidadeLead'] = leads['EntidadeLead'].astype(str)
+
     leads['CIDADE'] = leads.CIDADE.astype(str).apply(
         lambda x: unidecode.unidecode(x.lower()))
     leads['GRUPOORIGEM'] = leads.GRUPOORIGEM.astype(str).apply(
@@ -125,7 +129,7 @@ def get_internal_brokers(filepath):
     Returns:
 
     """
-    return pd.read_excel(filepath).CPF.unique.tolist()
+    return pd.read_excel(filepath).CPF.unique().tolist()
 
 
 def get_shifts():
@@ -172,8 +176,8 @@ def filter_brokers(lead, brokers_on_duty, working_days=30):
                                     brokers_on_duty))
 
     brokers_fair = list(filter(lambda x: x[1] >= working_days,
-                                  zip(brokers_on_duty,
-                                      brokers_working_days)))
+                               zip(brokers_on_duty,
+                                   brokers_working_days)))
     brokers_fair = list(map(lambda x: x[0], brokers_fair))
 
     # Requirements to use fair indices
@@ -230,7 +234,7 @@ def get_capacity_broker(broker_cpf):
 
 def get_matches_quantity(broker_cpf, days=0):
     """Query matches quantity for a specific broker in the day"""
-    date = datetime.datetime.today().replace(hour=0, minute=0, second=0)
+    date = datetime.today().replace(hour=0, minute=0, second=0)
     date = date - timedelta(days=days)
     sql = f'SELECT COUNT(*) FROM leads_match WHERE cpf_broker = ? AND date > ?'
     return db_operations.do_select(sql, [broker_cpf, date])[0][0]
@@ -287,7 +291,6 @@ def lead_recommendation(lead, filtered_brokers):
     Returns:
 
     """
-    lead = pd.Series(lead).to_frame().T
     lead = prepara_dados.data_cluster_prep(lead, features_cluster)
     # TODO CPF as float?
     filtered_brokers_float = list(map(float, filtered_brokers))
@@ -331,7 +334,6 @@ def lead_score(lead):
     num = features['num']
     xvar = features['xvar']
 
-    lead = pd.Series(lead).to_frame().T
     _, lead = prepara_dados.data_clean(lead, cat, num)
     # TODO What happens if category does not exists?
     lead_x = preprocessor.transform(lead[xvar])
@@ -353,13 +355,12 @@ def process_lead(lead, filtered_brokers):
     Returns:
 
     """
+    lead = pd.Series(lead).to_frame().T
     lead_labels, lead_proba = lead_score(lead)
     lead['score'] = lead_proba
     lead['flag_previsao'] = lead_labels
-    lead['Score_xgboost_bin'] = aux_function.Score_bins([lead['score']])
-    lead['Score_xgboost_bin'] = lead['Score_xgboost_bin'].tolist()[0]
-    lead['age_bins'] = aux_function.Age_bins([lead['DATA_NASCIMENTO']])
-    lead['age_bins'] = lead['age_bins'].tolist()[0]
+    lead['Score_xgboost_bin'] = aux_function.Score_bins(lead['score'])
+    lead['age_bins'] = aux_function.Age_bins(lead['DATA_NASCIMENTO'])
 
     return lead_recommendation(lead, filtered_brokers)
 
@@ -397,7 +398,7 @@ def run_motor(leads, shifts=None, internal_brokers=None):
     leads = prepare_lead(leads)
 
     if not shifts:
-        shifts = request_broker_shifts()
+        shifts = get_shifts()
         internal_brokers = get_internal_brokers(INTERNAL_BROKER_FILENAME)
 
     brokers = get_brokers(shifts, internal_brokers)
@@ -412,7 +413,7 @@ def run_motor(leads, shifts=None, internal_brokers=None):
         # TODO Map internal errors so that a try catch here can be removed
         try:
             lead = lead.to_dict()
-            lead_cpf = str(int(lead['CPF']))
+            lead_cpf = str(int(lead['ID_LEAD']))
 
             log.info(f'Lead {lead_cpf}, iniciando recomendação')
             filtered_brokers = filter_brokers(lead, brokers.copy())
@@ -445,5 +446,8 @@ def run_motor(leads, shifts=None, internal_brokers=None):
         except BaseException as ex:
             log.error(f'Erro capturado: {ex}. Recomendando aleatório')
             recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
+    try:
+        historico.Teams_message(URL_TEAMS, recommendation_output)
+    except:
+        pass
     return recommendation_output
-
