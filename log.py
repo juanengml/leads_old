@@ -9,10 +9,13 @@ class Logger(object):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
 
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         fh = logging.FileHandler('%s.log' % name, 'w')
+        fh.setFormatter(formatter)
         self.logger.addHandler(fh)
 
         sh = logging.StreamHandler()
+        sh.setFormatter(formatter)
         self.logger.addHandler(sh)
 
     def debug(self, msg):
