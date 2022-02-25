@@ -270,6 +270,8 @@ def get_justice_matrix(filtered_matrix, justice_degree=0.1):
         cluster_min = filtered_matrix.loc[lead, :].sort_values(
             ascending=False).min()
         cluster_range = np.arange(cluster_min, cluster_max, justice_degree)
+        if len(cluster_range) == 0:
+            cluster_range = np.array([cluster_min])
         justice_matrix = filtered_matrix.estimativa.loc[lead, :].apply(
             lambda y: cluster_range[abs(cluster_range - y).argmin()])
 
