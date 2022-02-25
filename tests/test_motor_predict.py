@@ -87,10 +87,10 @@ def test_prepare_lead(leads_data):
     assert len(output) == 6, "Incorrect number of leads in output"
 
 
-def test_prepare_lead_errors(leads_data_error):
-    """Check AttributeError raised when a specific column is not found."""
-    with pytest.raises(AttributeError):
-        prepare_lead(leads_data_error)
+# def test_prepare_lead_errors(leads_data_error):
+#     """Check AttributeError raised when a specific column is not found."""
+#     with pytest.raises(AttributeError):
+#         prepare_lead(leads_data_error)
 
 
 def test_get_brokers(shifts, brokers):
@@ -109,7 +109,7 @@ def test_filter_brokers(prepared_lead_data, brokers):
 
 def test_lead_score(prepared_lead_data):
     """Test lead score prediction."""
-    output = lead_score(prepared_lead_data)
+    output = lead_score(pd.Series(prepared_lead_data).to_frame().T)
     assert isinstance(output, tuple), "Wrong output type"
     assert isinstance(output[0], np.integer), "Wrong label type"
     assert isinstance(output[1], np.floating), "Wrong proba type"
@@ -117,7 +117,7 @@ def test_lead_score(prepared_lead_data):
 
 def test_lead_recommendation(scored_lead, brokers):
     """Test lead-broker recommendation."""
-    output = lead_recommendation(scored_lead, brokers)
+    output = lead_recommendation(pd.Series(scored_lead).to_frame().T, brokers)
     assert isinstance(output, tuple), "Wrong output type"
     assert isinstance(output[0], str), "Wrong label type"
     assert isinstance(output[1], np.floating), "Wrong proba type"
@@ -127,7 +127,7 @@ def test_lead_recommendation(scored_lead, brokers):
 def test_process_lead(prepared_lead_data, brokers):
     """Test processing steps for the lead score prediction and
     recommendation."""
-    output = process_lead(prepared_lead_data, brokers)
+    output, score = process_lead(prepared_lead_data, brokers)
     assert isinstance(output, tuple), "Wrong output type"
     assert isinstance(output[0], str), "Wrong label type"
     assert isinstance(output[1], np.floating), "Wrong proba type"
@@ -147,7 +147,7 @@ def test_select_brokers(brokers_with_leads_uf):
 def test_get_working_days(brokers):
     output = get_working_days(brokers[0])
     assert isinstance(output, int), "Invalid working days type"
-    assert output > 0, "Negative working days"
+    assert output >= 0, "Negative working days"
 
 
 def test_get_capacity_broker(brokers):
@@ -173,13 +173,14 @@ def test_get_matches_quantity(brokers):
 
 def test_integration_process_lead(leads_data, broker_information):
     """Test prepare_leads(), filter_brokers() and process_lead() workflow."""
+    # TODO Clear match information before the test
     prepared_leads = prepare_lead(leads_data)
     prepared_lead = prepared_leads.iloc[0, :]
     update_broker(broker_information)
 
     brokers = list(map(lambda x: x['cpf'], broker_information))
     filtered_brokers = filter_brokers(prepared_lead, brokers)
-    recommended_broker, recommended_score = process_lead(
+    (recommended_broker, recommended_score), score = process_lead(
         prepared_lead, filtered_brokers)
     assert isinstance(recommended_broker, str), "Wrong label type"
     assert isinstance(recommended_score, np.floating), "Wrong proba type"
@@ -187,6 +188,6 @@ def test_integration_process_lead(leads_data, broker_information):
 
 def teste_run_motor(leads_data, shifts, brokers):
     output = run_motor(leads_data, shifts, brokers)
-    n_leads = len(leads_data['CPF'])
+    n_leads = len(leads_data['ID_LEAD'])
     assert len(output.keys()) == n_leads, "Incorrect number of output" \
                                           " messages"
