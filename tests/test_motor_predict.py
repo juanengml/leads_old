@@ -189,5 +189,11 @@ def test_integration_process_lead(leads_data, broker_information):
 def teste_run_motor(leads_data, shifts, brokers):
     output = run_motor(leads_data, shifts, brokers)
     n_leads = len(leads_data['ID_LEAD'])
+    result = {}
+    for l in output:
+        out = {';'.join(list(output[l].keys())): ';'.join(
+            map(lambda x: str(x), list(output[l].values())))}
+        result[l] = out
+    output = result
     assert len(output.keys()) == n_leads, "Incorrect number of output" \
                                           " messages"

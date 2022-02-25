@@ -51,6 +51,14 @@ def add_message():
                 logging.info('Motor score')
             else:
                 output = mc.run_motor(ent_json)
+
+                # TODO This response does not make sense
+                result = {}
+                for l in output:
+                    out = {';'.join(list(output[l].keys())): ';'.join(
+                        map(lambda x: str(x), list(output[l].values())))}
+                    result[l] = out
+                output = result
                 return jsonify(output)
 
             result = {}
@@ -59,8 +67,8 @@ def add_message():
             return jsonify(result)
     
     return '[{"Status":"ACESSO NEGADO"}]'
-
-#if __name__=='__main__':
-    #app.run(host='0.0.0.0')
+#
+# if __name__=='__main__':
+#     app.run(host='0.0.0.0')
 
 

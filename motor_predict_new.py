@@ -314,9 +314,9 @@ def lead_recommendation(lead, filtered_brokers):
         return None, None
 
     match_broker = recommendation['CPF_CORRETOR'].values[0]
-    match_broker = str(int(match_broker))
-    if len(match_broker) < 11:
-        match_broker = f"0{int(match_broker)}"
+    # match_broker = str(int(match_broker))
+    # if len(match_broker) < 11:
+    #     match_broker = f"0{int(match_broker)}"
     match_score = recommendation['RATING'].values[0]
     return match_broker, match_score
 
@@ -383,7 +383,8 @@ def random_recommendation(lead_cpf, brokers):
               "CPF_CORRETOR_2": recommended_broker,
               "CPF_CORRETOR_3": recommended_broker,
               "RATING": 0.0, "RATING_2": 0.0,
-              "RATING_3": 0.0, "SCORE": 0.0}
+              "RATING_3": 0.0, "SCORE": 0.0,
+              "FLAG_REDISTRIBUICAO": False}
     return output
 
 
@@ -417,7 +418,7 @@ def run_motor(leads, shifts=None, internal_brokers=None):
         # TODO Map internal errors so that a try catch here can be removed
         try:
             lead = lead.to_dict()
-            lead_cpf = str(int(lead['ID_LEAD']))
+            lead_cpf = lead['ID_LEAD']
 
             log.info(f'Lead {lead_cpf}, iniciando recomendação')
             filtered_brokers = filter_brokers(lead, brokers.copy())
@@ -450,7 +451,8 @@ def run_motor(leads, shifts=None, internal_brokers=None):
                                           "RATING": recommended_score,
                                           "RATING_2": recommended_score,
                                           "RATING_3": recommended_score,
-                                          "SCORE": score}
+                                          "SCORE": score,
+                                          "FLAG_REDISTRIBUICAO": False}
         except BaseException as ex:
             log.error(f'Erro capturado: {ex}. Recomendando aleatório')
             recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
