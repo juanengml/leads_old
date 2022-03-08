@@ -1,3 +1,9 @@
+# Log Data
+Score_enviados/
+Score_recebidos/
+Leads_recomendacao/
+recebidos/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

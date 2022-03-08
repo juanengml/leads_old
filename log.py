@@ -10,7 +10,7 @@ class Logger(object):
         self.logger.setLevel(level)
 
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        fh = logging.FileHandler('%s.log' % name, 'w')
+        fh = logging.FileHandler('%s.log' % name, encoding='utf-8')
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
 

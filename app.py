@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import pandas as pd
 import random
+import json
 import sys
 import hashlib
 from datetime import datetime
@@ -8,6 +9,7 @@ import motor_predict_new as mc
 import motor_score_predict as mc_score
 import config
 
+from motor_predict_new import log
 import logging
 LOG_FILENAME = "logfileX.log"
 log_format = '%(asctime)s:%(levelname)s:%(filename)s:%(message)s'
@@ -21,6 +23,10 @@ def add_message():
     logging.info('API chamada')
 
     content = request.json
+    log.info(content)
+    
+    with open('request.json', 'w') as f:
+        f.write(json.dumps(content))
     val_key = config.LEADS_VAL_KEY
     api_val = str(request).split('apikey=')[1].split("'")[0]
     if (hashlib.sha256(str(api_val).encode('utf-8')).hexdigest() == val_key):
@@ -50,25 +56,21 @@ def add_message():
                 df.to_csv(config.path_score_enviados+'/'+k+'_'+arq, index=None)
                 logging.info('Motor score')
             else:
-                output = mc.run_motor(ent_json)
-
-                # TODO This response does not make sense
-                result = {}
-                for l in output:
-                    out = {';'.join(list(output[l].keys())): ';'.join(
-                        map(lambda x: str(x), list(output[l].values())))}
-                    result[l] = out
-                output = result
+                output = mc.run_motor(ent_json) 
+                log.info(output)
+                
+                # output= output
                 return jsonify(output)
 
             result = {}
             for index, row in df.iterrows():
                 result[index] = dict(row)
+            # log.info(result)
             return jsonify(result)
     
     return '[{"Status":"ACESSO NEGADO"}]'
-#
+
 # if __name__=='__main__':
-#     app.run(host='0.0.0.0')
+#     app.run(host='0.0.0.0', debug=True)
 
 

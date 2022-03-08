@@ -115,8 +115,8 @@ def get_brokers(shifts, internal_brokers):
     brokers = list(filter(lambda x: x['leadsDistribuidos'] <
                                     x['quantidadeLeads'], brokers))
 
-    brokers = list(filter(lambda x: x['cpf'] in internal_brokers,
-                          brokers))
+    # brokers = list(filter(lambda x: x['cpf'] in internal_brokers,
+    #                       brokers))
     return brokers
 
 
@@ -380,13 +380,13 @@ def random_recommendation(lead_cpf, brokers):
     recommended_broker = random.choice(brokers)
     insert_lead(lead_cpf)
     insert_match(lead_cpf, recommended_broker, 0.0, "RANDOM")
-    output = {"ID_LEAD": lead_cpf,
-              "CPF_CORRETOR": recommended_broker,
+    output = {"PF_CORRETOR": recommended_broker,
               "CPF_CORRETOR_2": recommended_broker,
               "CPF_CORRETOR_3": recommended_broker,
+              "ID_LEAD": lead_cpf,
               "RATING": 0.0, "RATING_2": 0.0,
               "RATING_3": 0.0, "SCORE": 0.0,
-              "FLAG_REDISTRIBUICAO": False}
+              }
     return output
 
 
@@ -417,10 +417,11 @@ def run_motor(leads, shifts=None, internal_brokers=None):
     log.info(f'Processando {len(leads)} leads')
     recommendation_output = {}
     for idx, lead in leads.iterrows():
+        idx = str(idx)
         # TODO Map internal errors so that a try catch here can be removed
         try:
             lead = lead.to_dict()
-            lead_cpf = lead['ID_LEAD']
+            lead_cpf =float(lead['ID_LEAD'])
 
             log.info(f'Lead {lead_cpf}, iniciando recomendação')
             filtered_brokers = filter_brokers(lead, brokers.copy())
@@ -446,15 +447,14 @@ def run_motor(leads, shifts=None, internal_brokers=None):
             insert_lead(lead_cpf)
             insert_match(lead_cpf, recommended_broker, recommended_score,
                          'RECOMMENDATION')
-            recommendation_output[idx] = {"ID_LEAD": lead_cpf,
-                                          "CPF_CORRETOR": recommended_broker,
+            recommendation_output[idx] = {"CPF_CORRETOR": recommended_broker,
                                           "CPF_CORRETOR_2": recommended_broker,
                                           "CPF_CORRETOR_3": recommended_broker,
+                                          "ID_LEAD": lead_cpf,
                                           "RATING": recommended_score,
                                           "RATING_2": recommended_score,
                                           "RATING_3": recommended_score,
-                                          "SCORE": score,
-                                          "FLAG_REDISTRIBUICAO": False}
+                                          "SCORE": float(score)}
         except BaseException as ex:
             log.error(f'Erro capturado: {ex}. Recomendando aleatório')
             recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
