@@ -146,7 +146,25 @@ def get_shifts():
     return shifts
 
 
-def filter_brokers(lead, brokers_on_duty, working_days=30):
+def be_fair(brokers, working_days, matches, min_days=5):
+    brokers_fair = list(filter(lambda x: x[1] >= min_days,
+                               zip(brokers, working_days)))
+
+    MAX_PROPORTION = 1 / len(brokers_fair)
+    brokers_fair = list(map(lambda x: x[0], brokers_fair))
+
+    # Requirements to use fair indices
+    if len(brokers_fair) == 0:
+        return brokers
+
+    proportion = list(map(lambda x: x / sum(matches),
+                            matches))
+    proportion = list(filter(lambda x: x[1] <= MAX_PROPORTION,
+                               zip(brokers, proportion)))
+    return list(map(lambda x: x[0], proportion))
+
+
+def filter_brokers(lead, brokers_on_duty, working_days=5):
     """Filter by UF, capacity and Fair Indices
 
     Args:
@@ -171,26 +189,11 @@ def filter_brokers(lead, brokers_on_duty, working_days=30):
     if len(brokers_on_duty) == 0 or sum(brokers_matches) == 0:
         return brokers_on_duty
 
-    # Fair indices
     brokers_working_days = list(map(lambda x: get_working_days(x),
                                     brokers_on_duty))
 
-    brokers_fair = list(filter(lambda x: x[1] >= working_days,
-                               zip(brokers_on_duty,
-                                   brokers_working_days)))
-    brokers_fair = list(map(lambda x: x[0], brokers_fair))
-
-    # Requirements to use fair indices
-    if len(brokers_fair) == 0:
-        return brokers_on_duty
-
-    brokers_fair = list(map(lambda x: x / sum(brokers_matches),
-                            brokers_matches))
-    max_proportion = 1 / len(brokers_on_duty)
-    brokers_fair = list(filter(lambda x: x[1] < max_proportion,
-                               zip(brokers_on_duty, brokers_fair)))
-    brokers_fair = list(map(lambda x: x[0], brokers_fair))
-    return brokers_fair
+    return be_fair(brokers_on_duty, brokers_working_days,
+                      brokers_matches, working_days)
 
 
 def select_brokers(brokers_cpf, uf):

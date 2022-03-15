@@ -5,10 +5,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from motor_predict_new import prepare_lead, get_brokers, filter_brokers, \
-    process_lead, lead_score, lead_recommendation, get_request_body, \
-    update_broker, select_brokers, insert_lead, insert_match, \
-    get_capacity_broker, get_working_days, get_matches_quantity, run_motor
+from motor_predict_new import prepare_lead, get_brokers, filter_brokers
+from motor_predict_new import process_lead, lead_score, lead_recommendation
+from motor_predict_new import get_request_body, update_broker, select_brokers
+from motor_predict_new import insert_lead, insert_match, get_capacity_broker
+from motor_predict_new import get_working_days, get_matches_quantity, run_motor
+from motor_predict_new import be_fair
 
 
 @pytest.fixture
@@ -197,3 +199,13 @@ def teste_run_motor(leads_data, shifts, brokers):
     output = result
     assert len(output.keys()) == n_leads, "Incorrect number of output" \
                                           " messages"
+
+
+def test_be_fair():
+    brokers = [0, 1, 2, 3, 4]
+    working_days = [3, 7, 10, 25, 15]
+    matches = [2, 37, 21, 28, 12]
+
+    output = be_fair(brokers, working_days, matches)
+    assert isinstance(output, list), "Wrong output type"
+    assert len(output) > 0, "Incorrect number of brokers"

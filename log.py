@@ -5,6 +5,7 @@ import logging
 
 sys.stdout.reconfigure(encoding='utf-8', errors='blackslashreplace')
 
+
 class Logger(object):
 
     def __init__(self, name='logger', level=logging.DEBUG):
