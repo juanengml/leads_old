@@ -425,16 +425,19 @@ def run_motor(leads, shifts=None, internal_brokers=None):
 
             log.info(f'Lead {lead_cpf}, iniciando recomendação')
             filtered_brokers = filter_brokers(lead, brokers.copy())
-
-            if len(filtered_brokers) < 2:
-                # TODO What to do if no broker on duty with the same uf,
-                #  available capacity and fair indice is found?
-                log.info(f'{len(filtered_brokers)} corretores com a mesma UF, com '
-                         f'capacity e fair indice disponível. Recomendando aleatório')
-                recommendation_output[idx] = random_recommendation(lead_cpf, brokers)
-                continue
             log.info(f'{len(filtered_brokers)} possíveis candidatos'
                      f' encontrados')
+            if len(filtered_brokers) < 1:
+                log.info('Recomendando nada')
+                recommendation_output[idx] = {}
+                continue
+            if len(filtered_brokers) == 1:
+                # TODO What to do if no broker on duty with the same uf,
+                #  available capacity and fair indice is found?
+                log.info('Recomendando aleatório')
+                recommendation_output[idx] = random_recommendation(lead_cpf, filtered_brokers)
+                continue
+            
             (recommended_broker, recommended_score), score = process_lead(
                 lead, filtered_brokers)
             log.info(f'Resultado recomendação: {recommended_broker}')

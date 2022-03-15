@@ -1,7 +1,9 @@
 # coding: utf-8
 
+import sys
 import logging
 
+sys.stdout.reconfigure(encoding='utf-8', errors='blackslashreplace')
 
 class Logger(object):
 
