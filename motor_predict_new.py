@@ -146,7 +146,7 @@ def get_shifts():
     return shifts
 
 
-def be_fair(brokers, working_days, matches, min_days=5):
+def be_fair(brokers, working_days, matches, min_days):
     brokers_fair = list(filter(lambda x: x[1] >= min_days,
                                zip(brokers, working_days)))
 
@@ -164,7 +164,7 @@ def be_fair(brokers, working_days, matches, min_days=5):
     return list(map(lambda x: x[0], proportion))
 
 
-def filter_brokers(lead, brokers_on_duty, working_days=5):
+def filter_brokers(lead, brokers_on_duty, working_days=0):
     """Filter by UF, capacity and Fair Indices
 
     Args:
